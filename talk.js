@@ -8,7 +8,7 @@ const PUNCTUATION = /[\s，。！？、,.!?＿]/;
 
 const TALK_TEXT = {
   ja: {
-    turns: "回のやりとり",
+    branches: "返事で話が変わる",
     cleared: "クリア",
     back: "← シナリオ一覧",
     speak: "🎤 話す",
@@ -35,7 +35,7 @@ const TALK_TEXT = {
     noMic: "このブラウザは音声認識に対応していません。文字で入力してください",
   },
   zh: {
-    turns: "轮对话",
+    branches: "回答不同，对话也不同",
     cleared: "已完成",
     back: "← 场景列表",
     speak: "🎤 说",
@@ -69,6 +69,7 @@ const TONE_MARKS = ["āēīōūǖĀĒĪŌŪ", "áéíóúǘÁÉÍÓÚ", "ǎěǐ�
 const talk = {
   scenario: null,
   stepIndex: 0,
+  turnCount: 0, // 今回の会話で返事をした回数
   tries: 0,
   firstTryCount: 0,
   waiting: false, // 返事を受け付けているか
@@ -117,9 +118,11 @@ function loadResults() {
   }
 }
 
-function saveResult(id, firstTry) {
+// 1回で伝わった割合が一番よかった記録を残す
+function saveResult(id, ok, all) {
   const results = loadResults();
-  results[id] = Math.max(results[id] || 0, firstTry);
+  const prev = results[id];
+  if (!prev || typeof prev !== "object" || ok / all >= prev.ok / prev.all) results[id] = { ok, all };
   try {
     localStorage.setItem(TALK_STORAGE_KEY, JSON.stringify(results));
   } catch {
@@ -234,12 +237,13 @@ function renderMenu() {
   for (const s of SCENARIOS) {
     const card = document.createElement("button");
     card.className = "talk-card";
-    const done = results[s.id] !== undefined;
+    const best = results[s.id];
+    const hasBranch = s.steps.some((step) => step.answers.some((a) => a[3]));
     card.innerHTML = `
       <span class="talk-card-icon">${s.partner.icon}</span>
       <span class="talk-card-title">${esc(s.title[lang()])}</span>
-      <span class="talk-card-sub">${esc(s.partner[lang()])} ・ ${s.steps.length}${text.turns}</span>
-      ${done ? `<span class="talk-card-done">✓ ${text.cleared} ${results[s.id]}/${s.steps.length}</span>` : ""}
+      <span class="talk-card-sub">${esc(s.partner[lang()])}${hasBranch ? ` ・ ${text.branches}` : ""}</span>
+      ${best && typeof best === "object" ? `<span class="talk-card-done">✓ ${text.cleared} ${best.ok}/${best.all}</span>` : ""}
     `;
     card.onclick = () => startScenario(s);
     talkEls.list.appendChild(card);
@@ -314,6 +318,7 @@ function startScenario(scenario) {
   clearTimeout(talk.timer);
   talk.scenario = scenario;
   talk.stepIndex = 0;
+  talk.turnCount = 0;
   talk.firstTryCount = 0;
   talkEls.menu.hidden = true;
   talkEls.stage.hidden = false;
@@ -344,7 +349,7 @@ function answer(candidates) {
 
   if (passed) {
     if (talk.tries === 0) talk.firstTryCount++;
-    nextStep();
+    nextStep(result.answer);
   } else {
     talk.tries++;
     if (talk.tries >= 2) renderHint(step); // 2回まちがえたらヒントを出す
@@ -353,7 +358,8 @@ function answer(candidates) {
 
 function skipStep() {
   if (!talk.waiting) return;
-  const [zh, py] = currentStep().answers[0];
+  const sample = currentStep().answers[0];
+  const [zh, py] = sample;
   const el = document.createElement("div");
   el.className = "chat-msg user skipped";
   el.innerHTML = `
@@ -365,26 +371,41 @@ function skipStep() {
   talkEls.log.appendChild(el);
   scrollToEnd(el);
   speak(zh.replace(/＿/g, ""));
-  nextStep(2500);
+  nextStep(sample, 2500);
 }
 
-function nextStep(delay = 1200) {
+// 選んだ返事から、次のセリフの位置を決める（-1 なら会話の終わり）
+function nextIndex(step, chosen) {
+  const steps = talk.scenario.steps;
+  const id = chosen[3] || step.next;
+  if (id === "end") return -1;
+  if (id) {
+    const index = steps.findIndex((s) => s.id === id);
+    if (index === -1) console.warn(`シナリオ「${talk.scenario.id}」に id「${id}」のセリフがありません`);
+    return index;
+  }
+  return talk.stepIndex + 1 < steps.length ? talk.stepIndex + 1 : -1;
+}
+
+function nextStep(chosen, delay = 1200) {
+  const next = nextIndex(currentStep(), chosen);
+  talk.turnCount++;
   talk.waiting = false;
   talkEls.turn.hidden = true;
   talk.timer = setTimeout(() => {
-    talk.stepIndex++;
-    if (talk.stepIndex < talk.scenario.steps.length) {
-      showStep();
-    } else {
+    if (next === -1) {
       finish();
+    } else {
+      talk.stepIndex = next;
+      showStep();
     }
   }, delay);
 }
 
 function finish() {
   const text = t();
-  const all = talk.scenario.steps.length;
-  saveResult(talk.scenario.id, talk.firstTryCount);
+  const all = talk.turnCount;
+  saveResult(talk.scenario.id, talk.firstTryCount, all);
   const el = document.createElement("div");
   el.className = "talk-finish";
   el.innerHTML = `
