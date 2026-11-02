@@ -14,6 +14,7 @@
       <button class="tab active" data-view="phrases">フレーズ</button>
       <button class="tab" data-view="quiz">クイズ</button>
       <button class="tab" data-view="tones">声調</button>
+      <button class="tab" data-view="talk">会話練習</button>
       <button class="tab" data-view="camera">写真で単語</button>
     </nav>
   </header>
@@ -54,6 +55,44 @@
       <div id="tone-list" class="tone-list"></div>
     </section>
 
+    <!-- 会話練習 -->
+    <section id="view-talk" class="view" hidden>
+      <div id="talk-menu">
+        <div class="talk-settings">
+          <label>説明の言語 / 说明语言
+            <select id="talk-lang">
+              <option value="ja">日本語</option>
+              <option value="zh">中文</option>
+            </select>
+          </label>
+        </div>
+        <p class="hint">場面を選ぶと相手が中国語で話しかけてきます。🎤で返事をして、伝わるか試してみよう。</p>
+        <div id="talk-list" class="talk-list"></div>
+      </div>
+
+      <div id="talk-stage" hidden>
+        <div class="talk-header">
+          <button id="talk-back" class="btn"></button>
+          <span id="talk-title" class="talk-title"></span>
+        </div>
+        <div id="talk-log" class="chat-log"></div>
+        <div id="talk-turn" class="talk-turn">
+          <p id="talk-turn-label" class="talk-turn-label"></p>
+          <div class="talk-input-row">
+            <button id="talk-mic" class="btn primary"></button>
+            <input id="talk-input" type="text">
+            <button id="talk-send" class="btn"></button>
+          </div>
+          <div class="phrase-actions">
+            <button id="talk-hint-btn" class="btn"></button>
+            <button id="talk-skip" class="btn"></button>
+          </div>
+          <p id="talk-status" class="talk-status"></p>
+          <div id="talk-hint" class="talk-hint" hidden></div>
+        </div>
+      </div>
+    </section>
+
     <!-- 写真で単語（画像認識） -->
     <section id="view-camera" class="view" hidden>
       <p class="hint">花や動物を写すと、中国語で何と言うかがわかります。写真はこの端末の中だけで解析され、どこにも送信されません。</p>
@@ -74,8 +113,10 @@
   </main>
 
   <script src="data/phrases.js"></script>
+  <script src="data/scenarios.js"></script>
   <script src="data/objects.js"></script>
   <script src="app.js"></script>
+  <script src="talk.js"></script>
   <script src="camera.js"></script>
 </body>
 </html>
