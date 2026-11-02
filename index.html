@@ -14,6 +14,7 @@
       <button class="tab active" data-view="phrases">フレーズ</button>
       <button class="tab" data-view="quiz">クイズ</button>
       <button class="tab" data-view="tones">声調</button>
+      <button class="tab" data-view="talk">会話練習</button>
     </nav>
   </header>
 
@@ -52,9 +53,49 @@
       <p class="hint">中国語は音の高さ（声調）で意味が変わります。同じ「ma」でも4通り。押して聞き比べてみよう。</p>
       <div id="tone-list" class="tone-list"></div>
     </section>
+
+    <!-- 会話練習 -->
+    <section id="view-talk" class="view" hidden>
+      <div id="talk-menu">
+        <div class="talk-settings">
+          <label>説明の言語 / 说明语言
+            <select id="talk-lang">
+              <option value="ja">日本語</option>
+              <option value="zh">中文</option>
+            </select>
+          </label>
+        </div>
+        <p class="hint">場面を選ぶと相手が中国語で話しかけてきます。🎤で返事をして、伝わるか試してみよう。</p>
+        <div id="talk-list" class="talk-list"></div>
+      </div>
+
+      <div id="talk-stage" hidden>
+        <div class="talk-header">
+          <button id="talk-back" class="btn"></button>
+          <span id="talk-title" class="talk-title"></span>
+        </div>
+        <div id="talk-log" class="chat-log"></div>
+        <div id="talk-turn" class="talk-turn">
+          <p id="talk-turn-label" class="talk-turn-label"></p>
+          <div class="talk-input-row">
+            <button id="talk-mic" class="btn primary"></button>
+            <input id="talk-input" type="text">
+            <button id="talk-send" class="btn"></button>
+          </div>
+          <div class="phrase-actions">
+            <button id="talk-hint-btn" class="btn"></button>
+            <button id="talk-skip" class="btn"></button>
+          </div>
+          <p id="talk-status" class="talk-status"></p>
+          <div id="talk-hint" class="talk-hint" hidden></div>
+        </div>
+      </div>
+    </section>
   </main>
 
   <script src="data/phrases.js"></script>
+  <script src="data/scenarios.js"></script>
   <script src="app.js"></script>
+  <script src="talk.js"></script>
 </body>
 </html>

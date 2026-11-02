@@ -107,3 +107,65 @@ body {
 .tone-zh { font-size: 2.4rem; margin: 0; }
 .tone-name { font-weight: bold; color: var(--accent); margin: 0; }
 .tone-desc { color: var(--muted); font-size: 0.85rem; margin: 6px 0 0; }
+
+/* 会話練習 */
+.talk-settings select {
+  margin-left: 4px; padding: 4px 8px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--card); color: var(--text);
+}
+.talk-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+.talk-card {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left;
+  background: var(--card); color: var(--text); border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px 16px; font: inherit; cursor: pointer;
+}
+.talk-card:hover { border-color: var(--accent); }
+.talk-card-icon { font-size: 1.8rem; }
+.talk-card-title { font-weight: bold; font-size: 1.1rem; }
+.talk-card-sub { color: var(--muted); font-size: 0.85rem; }
+.talk-card-done { color: var(--ok); font-size: 0.85rem; font-weight: bold; }
+
+.talk-header { display: flex; align-items: center; gap: 12px; }
+.talk-title { font-weight: bold; font-size: 1.1rem; }
+
+.chat-log { display: flex; flex-direction: column; gap: 12px; margin: 16px 0; }
+.chat-msg { max-width: 85%; border-radius: 12px; padding: 12px 16px; border: 1px solid var(--border); }
+.chat-msg p { margin: 0; }
+.chat-msg.ai { align-self: flex-start; background: var(--card); }
+.chat-msg.user { align-self: flex-end; background: var(--accent-soft); }
+.chat-msg.skipped { opacity: 0.75; }
+.chat-msg .btn { margin-top: 8px; }
+.chat-zh { font-size: 1.4rem; }
+.chat-zh-small { font-size: 1.15rem; }
+.talk-who { color: var(--muted); font-size: 0.8rem; }
+.chat-feedback {
+  margin-top: 10px; padding: 10px 12px; border-radius: 8px;
+  background: var(--card); border-left: 4px solid var(--ng); font-size: 0.9rem;
+}
+.chat-feedback p { margin: 2px 0; }
+.chat-feedback.ok { border-left-color: var(--ok); }
+.chat-feedback-title { font-weight: bold; color: var(--ng); }
+.chat-feedback.ok .chat-feedback-title { color: var(--ok); }
+.talk-model { font-size: 1.2rem; }
+.talk-model small { color: var(--accent); font-size: 0.85rem; }
+.talk-tips { margin: 4px 0; padding-left: 20px; }
+.missed { color: var(--ng); font-weight: bold; text-decoration: underline; }
+
+.talk-turn { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; }
+.talk-turn-label { margin: 0 0 8px; font-weight: bold; color: var(--accent); }
+.talk-input-row { display: flex; gap: 8px; margin-bottom: 8px; }
+.talk-input-row input {
+  flex: 1; min-width: 0; padding: 6px 12px; font: inherit; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--bg); color: var(--text);
+}
+.talk-status { color: var(--ng); font-size: 0.9rem; min-height: 1.2em; margin: 6px 0 0; }
+.talk-hint { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); }
+.talk-hint p { margin: 2px 0; }
+.talk-examples { list-style: none; padding: 0; margin: 4px 0; display: grid; gap: 6px; }
+.talk-examples li { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.talk-examples .btn { padding: 2px 10px; }
+
+.talk-finish { text-align: center; background: var(--ok-soft); border-radius: 12px; padding: 16px; }
+.talk-finish p { margin: 4px 0; }
+.talk-finish .phrase-actions { justify-content: center; margin-top: 8px; }
+.talk-finish-title { font-size: 1.4rem; font-weight: bold; color: var(--ok); }
