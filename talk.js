@@ -356,7 +356,12 @@ function skipStep() {
   const [zh, py] = currentStep().answers[0];
   const el = document.createElement("div");
   el.className = "chat-msg user skipped";
-  el.innerHTML = `<p>${t().skipped}</p><p class="chat-zh">${esc(zh)}</p><p class="phrase-py">${esc(py)}</p>`;
+  el.innerHTML = `
+    <p>${t().skipped}</p>
+    <p class="chat-zh">${esc(zh)}</p>
+    <p class="phrase-py">${esc(py)}</p>
+    <button class="btn" data-say="${esc(zh.replace(/＿/g, ""))}">🔊</button>
+  `;
   talkEls.log.appendChild(el);
   scrollToEnd(el);
   speak(zh.replace(/＿/g, ""));
