@@ -169,3 +169,20 @@ body {
 .talk-finish p { margin: 4px 0; }
 .talk-finish .phrase-actions { justify-content: center; margin-top: 8px; }
 .talk-finish-title { font-size: 1.4rem; font-weight: bold; color: var(--ok); }
+
+/* 写真で単語（画像認識） */
+.tabs { flex-wrap: wrap; }
+.camera-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.camera-actions label.btn { display: inline-flex; align-items: center; }
+.detect-status { color: var(--muted); min-height: 1.6em; }
+.detect-stage { margin-bottom: 16px; }
+.detect-stage video,
+.detect-stage canvas {
+  display: block; max-width: 100%; height: auto;
+  border-radius: 12px; border: 1px solid var(--border);
+}
+.detect-stage [hidden] { display: none; }
+.detect-score { font-size: 0.85rem; margin-left: 6px; }
+.detect-sub { padding: 12px 16px; }
+.detect-sub .phrase-zh { font-size: 1.3rem; }
+.detect-label { margin: 0 0 4px; font-size: 0.8rem; color: var(--muted); }

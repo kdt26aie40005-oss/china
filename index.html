@@ -15,6 +15,7 @@
       <button class="tab" data-view="quiz">クイズ</button>
       <button class="tab" data-view="tones">声調</button>
       <button class="tab" data-view="talk">会話練習</button>
+      <button class="tab" data-view="camera">写真で単語</button>
     </nav>
   </header>
 
@@ -91,11 +92,31 @@
         </div>
       </div>
     </section>
+
+    <!-- 写真で単語（画像認識） -->
+    <section id="view-camera" class="view" hidden>
+      <p class="hint">花や動物を写すと、中国語で何と言うかがわかります。写真はこの端末の中だけで解析され、どこにも送信されません。</p>
+      <div class="camera-actions">
+        <label class="btn primary">📷 写真を選ぶ
+          <input type="file" id="photo-input" accept="image/*" hidden>
+        </label>
+        <button id="camera-start" class="btn">🎥 カメラを使う</button>
+        <button id="camera-shoot" class="btn primary" hidden>撮影して調べる</button>
+      </div>
+      <p id="detect-status" class="detect-status"></p>
+      <div class="detect-stage">
+        <video id="camera-video" playsinline muted hidden></video>
+        <canvas id="detect-canvas" hidden></canvas>
+      </div>
+      <div id="detect-list" class="phrase-list"></div>
+    </section>
   </main>
 
   <script src="data/phrases.js"></script>
   <script src="data/scenarios.js"></script>
   <script src="app.js"></script>
   <script src="talk.js"></script>
+  <script src="data/objects.js"></script>
+  <script src="camera.js"></script>
 </body>
 </html>
