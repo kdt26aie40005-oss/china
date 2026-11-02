@@ -121,3 +121,6 @@ body {
 }
 .detect-stage [hidden] { display: none; }
 .detect-score { font-size: 0.85rem; margin-left: 6px; }
+.detect-sub { padding: 12px 16px; }
+.detect-sub .phrase-zh { font-size: 1.3rem; }
+.detect-label { margin: 0 0 4px; font-size: 0.8rem; color: var(--muted); }

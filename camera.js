@@ -1,14 +1,24 @@
-// ===== 写真で単語（画像認識） =====
-// 学習済みモデル COCO-SSD（TensorFlow.js）をブラウザ内で動かし、写っている物を見つける。
+// ===== 写真で単語（画像認識：花と動物） =====
+// 学習済みモデル CLIP（Transformers.js）をブラウザ内で動かし、
+// data/objects.js の候補の中から写真に一番近い花・動物を選ぶ。
 // 画像はどこにも送信されない。モデルは「写真で単語」タブを初めて開いたときに読み込む。
 // speak() / listen() / SpeechRecognition は app.js のものを使う。
 
-const TFJS_URL = "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js";
-const COCO_SSD_URL = "https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js";
-const MIN_SCORE = 0.5; // この確信度（50%）未満の結果は出さない
-const MAX_SIZE = 640; // 解析する画像の最大サイズ（px）。大きいと遅くなる
+const TRANSFORMERS_URL = "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.2/dist/transformers.min.js";
+const CLIP_MODEL = "Xenova/clip-vit-base-patch32";
+const MIN_SCORE = 0.25; // 一番の候補がこれ未満なら「わからない」とする
+const SUB_SCORE = 0.05; // 「ほかの候補」に出す最低ライン
+const MAX_SIZE = 640; // 画面に表示する画像の最大サイズ（px）
 
-let detectorPromise = null;
+// AI に渡す文と、その答え（単語）の対応表を作る
+const candidates = [];
+for (const c of NATURE_CATEGORIES) {
+  for (const item of c.items) candidates.push({ prompt: c.prompt(item.en), word: item, category: c });
+}
+const allPrompts = [...candidates.map((x) => x.prompt), ...OTHER_PROMPTS];
+const byPrompt = new Map(candidates.map((x) => [x.prompt, x]));
+
+let classifierPromise = null;
 let cameraStream = null;
 
 const camEl = {
@@ -25,34 +35,33 @@ function setStatus(text) {
   camEl.status.textContent = text;
 }
 
-function loadScript(src) {
-  return new Promise((resolve, reject) => {
-    const s = document.createElement("script");
-    s.src = src;
-    s.onload = resolve;
-    s.onerror = () => reject(new Error(`読み込み失敗: ${src}`));
-    document.head.appendChild(s);
-  });
-}
-
 // モデルの読み込み（1回だけ。失敗したら次に開いたとき再挑戦）
-function loadDetector() {
-  if (!detectorPromise) {
-    setStatus("AIを読み込んでいます…（初回は数秒〜数十秒かかります）");
-    detectorPromise = loadScript(TFJS_URL)
-      .then(() => loadScript(COCO_SSD_URL))
-      .then(() => cocoSsd.load())
-      .then((model) => {
-        setStatus("準備OK！写真を選ぶか、カメラで撮ってください");
-        return model;
+function loadClassifier() {
+  if (!classifierPromise) {
+    setStatus("AIを読み込んでいます…（初回だけ約150MBのダウンロードがあります）");
+    const files = new Map();
+    const onProgress = (p) => {
+      if (p.status !== "progress" || !p.total) return;
+      files.set(p.file, p);
+      const loaded = [...files.values()].reduce((s, f) => s + f.loaded, 0);
+      const total = [...files.values()].reduce((s, f) => s + f.total, 0);
+      setStatus(`AIを読み込んでいます… ${Math.floor((loaded / total) * 100)}%（初回だけ時間がかかります）`);
+    };
+    classifierPromise = import(TRANSFORMERS_URL)
+      .then(({ pipeline }) =>
+        pipeline("zero-shot-image-classification", CLIP_MODEL, { progress_callback: onProgress })
+      )
+      .then((classifier) => {
+        setStatus("準備OK！花か動物の写真を選ぶか、カメラで撮ってください");
+        return classifier;
       })
       .catch((err) => {
-        detectorPromise = null;
+        classifierPromise = null;
         setStatus("AIを読み込めませんでした。インターネット接続を確認して、もう一度タブを開いてください");
         throw err;
       });
   }
-  return detectorPromise;
+  return classifierPromise;
 }
 
 // 画像（img / video）をキャンバスに描いて解析する
@@ -61,78 +70,63 @@ async function detectFrom(source, width, height) {
   const canvas = camEl.canvas;
   canvas.width = Math.round(width * scale);
   canvas.height = Math.round(height * scale);
-  const ctx = canvas.getContext("2d");
-  ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
+  canvas.getContext("2d").drawImage(source, 0, 0, canvas.width, canvas.height);
   canvas.hidden = false;
   camEl.list.innerHTML = "";
 
-  let model;
+  let classifier;
   try {
-    model = await loadDetector();
+    classifier = await loadClassifier();
   } catch {
     return;
   }
   setStatus("調べています…");
-  const predictions = (await model.detect(canvas)).filter((p) => p.score >= MIN_SCORE);
+  const results = await classifier(canvas.toDataURL("image/jpeg", 0.9), allPrompts, {
+    hypothesis_template: "{}",
+  });
 
-  drawBoxes(ctx, predictions);
-  renderDetections(predictions);
-  setStatus(
-    predictions.length
-      ? `${predictions.length}個 見つかりました`
-      : "知っている物が見つかりませんでした。別の角度や明るい場所で試してみてください"
-  );
+  const top = results[0];
+  const best = byPrompt.get(top.label);
+  if (!best || top.score < MIN_SCORE) {
+    setStatus("花や動物が見つかりませんでした。花や動物を大きく写して、もう一度試してみてください");
+    return;
+  }
+
+  // 同じ種類（花なら花）の中から、ほかの候補も出す
+  const others = results
+    .slice(1)
+    .map((r) => ({ ...byPrompt.get(r.label), score: r.score }))
+    .filter((r) => r.word && r.category === best.category && r.score >= SUB_SCORE)
+    .slice(0, 2);
+
+  setStatus(`この${best.category.name}は…`);
+  renderResult(best.word, top.score, false);
+  for (const o of others) renderResult(o.word, o.score, true);
 }
 
-function drawBoxes(ctx, predictions) {
-  const color = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#c0392b";
-  ctx.lineWidth = 3;
-  ctx.font = "bold 18px system-ui, 'Microsoft YaHei', sans-serif";
-  ctx.textBaseline = "top";
-  for (const p of predictions) {
-    const [x, y, w, h] = p.bbox;
-    const label = OBJECT_WORDS[p.class]?.zh || p.class;
-    ctx.strokeStyle = color;
-    ctx.strokeRect(x, y, w, h);
-    const textW = ctx.measureText(label).width + 10;
-    const ty = y > 26 ? y - 26 : y;
-    ctx.fillStyle = color;
-    ctx.fillRect(x, ty, textW, 26);
-    ctx.fillStyle = "#fff";
-    ctx.fillText(label, x + 5, ty + 4);
+// 結果を単語カードにする
+function renderResult(word, score, isSub) {
+  const card = document.createElement("div");
+  card.className = "phrase-card" + (isSub ? " detect-sub" : "");
+  card.innerHTML = `
+    ${isSub ? '<p class="detect-label">ほかの候補</p>' : ""}
+    <p class="phrase-zh">${word.zh}</p>
+    <p class="phrase-py">${word.py}</p>
+    <p class="phrase-ja">${word.ja}<span class="detect-score">（AIの自信 ${Math.round(score * 100)}%）</span></p>
+    <div class="phrase-actions">
+      <button class="btn primary" data-action="play">🔊 聞く</button>
+      <button class="btn" data-action="listen">🎤 話してみる</button>
+    </div>
+    <p class="feedback"></p>
+  `;
+  const micBtn = card.querySelector('[data-action="listen"]');
+  card.querySelector('[data-action="play"]').onclick = () => speak(word.zh);
+  if (SpeechRecognition) {
+    micBtn.onclick = () => listen(word, micBtn, card.querySelector(".feedback"));
+  } else {
+    micBtn.disabled = true;
   }
-}
-
-// 見つかった物を単語カードにする（同じ物が複数あっても1枚にまとめる）
-function renderDetections(predictions) {
-  const best = new Map();
-  for (const p of predictions) {
-    if (!best.has(p.class) || best.get(p.class).score < p.score) best.set(p.class, p);
-  }
-
-  for (const p of best.values()) {
-    const word = OBJECT_WORDS[p.class] || { zh: p.class, py: "", ja: "（辞書にない物）" };
-    const card = document.createElement("div");
-    card.className = "phrase-card";
-    card.innerHTML = `
-      <p class="phrase-zh">${word.zh}</p>
-      <p class="phrase-py">${word.py}</p>
-      <p class="phrase-ja">${word.ja}<span class="detect-score">（AIの自信 ${Math.round(p.score * 100)}%）</span></p>
-      <div class="phrase-actions">
-        <button class="btn primary" data-action="play">🔊 聞く</button>
-        <button class="btn" data-action="listen">🎤 話してみる</button>
-      </div>
-      <p class="feedback"></p>
-    `;
-    const micBtn = card.querySelector('[data-action="listen"]');
-    card.querySelector('[data-action="play"]').onclick = () => speak(word.zh);
-    if (SpeechRecognition && word.py) {
-      micBtn.onclick = () => listen(word, micBtn, card.querySelector(".feedback"));
-    } else {
-      micBtn.disabled = true;
-    }
-    camEl.list.appendChild(card);
-  }
+  camEl.list.appendChild(card);
 }
 
 // ----- 写真を選ぶ -----
@@ -171,8 +165,8 @@ async function startCamera() {
   camEl.list.innerHTML = "";
   camEl.start.hidden = true;
   camEl.shoot.hidden = false;
-  setStatus("調べたい物を写して「撮影して調べる」を押してください");
-  loadDetector().catch(() => {});
+  setStatus("花や動物を大きく写して「撮影して調べる」を押してください");
+  loadClassifier().catch(() => {});
 }
 
 function stopCamera() {
@@ -198,7 +192,7 @@ camEl.shoot.onclick = () => {
 for (const tab of document.querySelectorAll(".tab")) {
   tab.addEventListener("click", () => {
     if (tab.dataset.view === "camera") {
-      loadDetector().catch(() => {});
+      loadClassifier().catch(() => {});
     } else {
       stopCamera();
     }
