@@ -1,0 +1,109 @@
+:root {
+  --bg: #f7f5f2;
+  --card: #ffffff;
+  --text: #222222;
+  --muted: #6b6b6b;
+  --accent: #c0392b;
+  --accent-soft: #fbeae8;
+  --ok: #2e7d32;
+  --ok-soft: #e6f4e7;
+  --ng: #c62828;
+  --border: #e3dfda;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #181716;
+    --card: #232120;
+    --text: #eeeeee;
+    --muted: #a5a19c;
+    --accent: #e8655a;
+    --accent-soft: #3a2422;
+    --ok: #7bc47f;
+    --ok-soft: #1f3321;
+    --ng: #ef7b7b;
+    --border: #3a3734;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, "Hiragino Sans", "Yu Gothic UI", "Microsoft YaHei", sans-serif;
+  line-height: 1.6;
+}
+
+.header {
+  text-align: center;
+  padding: 24px 16px 0;
+}
+.header h1 { margin: 0; font-size: 1.8rem; color: var(--accent); }
+.subtitle { margin: 4px 0 16px; color: var(--muted); }
+
+.tabs { display: flex; justify-content: center; gap: 8px; border-bottom: 1px solid var(--border); }
+.tab {
+  background: none; border: none; color: var(--muted);
+  padding: 10px 18px; font-size: 1rem; cursor: pointer;
+  border-bottom: 3px solid transparent;
+}
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: bold; }
+
+.container { max-width: 760px; margin: 0 auto; padding: 16px; }
+
+.settings {
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+  gap: 8px; color: var(--muted); font-size: 0.9rem; margin-bottom: 12px;
+}
+.settings input { vertical-align: middle; }
+.warning { background: var(--accent-soft); padding: 8px 12px; border-radius: 8px; font-size: 0.9rem; }
+.hint { color: var(--muted); }
+
+.btn {
+  border: 1px solid var(--border); background: var(--card); color: var(--text);
+  border-radius: 999px; padding: 6px 14px; font-size: 0.9rem; cursor: pointer;
+}
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn.recording { background: var(--ng); color: #fff; border-color: var(--ng); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.categories { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.categories .btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+.phrase-list { display: grid; gap: 12px; }
+.phrase-card, .quiz-card, .tone-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px;
+}
+.phrase-card.learned { border-left: 5px solid var(--ok); }
+.phrase-zh { font-size: 1.7rem; margin: 0; }
+.phrase-py { color: var(--accent); margin: 0; font-size: 1.05rem; }
+.phrase-ja { color: var(--muted); margin: 4px 0 12px; }
+.phrase-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.feedback { margin: 10px 0 0; font-size: 0.95rem; }
+.feedback.ok { color: var(--ok); }
+.feedback.ng { color: var(--ng); }
+.progress { font-weight: bold; color: var(--ok); }
+
+.quiz-label { color: var(--muted); margin: 0; }
+.quiz-question { font-size: 1.4rem; font-weight: bold; margin: 4px 0 16px; }
+.quiz-options { display: grid; gap: 8px; }
+.quiz-option {
+  text-align: left; padding: 12px 16px; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--bg); color: var(--text);
+  font-size: 1.2rem; cursor: pointer;
+}
+.quiz-option small { display: block; color: var(--muted); font-size: 0.85rem; }
+.quiz-option.correct { background: var(--ok-soft); border-color: var(--ok); }
+.quiz-option.wrong { background: var(--accent-soft); border-color: var(--ng); }
+.quiz-result { min-height: 1.6em; font-weight: bold; }
+.quiz-footer { display: flex; justify-content: space-between; align-items: center; }
+
+.tone-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+.tone-card { text-align: center; cursor: pointer; }
+.tone-card:hover { border-color: var(--accent); }
+.tone-zh { font-size: 2.4rem; margin: 0; }
+.tone-name { font-weight: bold; color: var(--accent); margin: 0; }
+.tone-desc { color: var(--muted); font-size: 0.85rem; margin: 6px 0 0; }
