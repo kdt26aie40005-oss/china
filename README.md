@@ -26,10 +26,10 @@ python -m http.server 8000
 
 ## メンバー
 
-| 名前 | ブランチ | 担当 |
+| 名前 | GitHub | 担当 |
 | --- | --- | --- |
-| koyo | `koyo` | 未定 |
-| （相手の名前） | （相手のブランチ） | 未定 |
+| koyo | `kdt26aie40005-oss` | 未定 |
+| （相手の名前） | `kdt26aie40007-arch` | 未定 |
 
 ## フォルダ構成
 
@@ -50,31 +50,57 @@ python -m http.server 8000
 
 ## 開発の流れ
 
-1. 作業前に最新を取り込む
+**作業ごとにブランチを切り、終わったら Pull Request でマージして消す**方式で進めます。
+ブランチを短期間で使い捨てにすることで、`main` とのずれを小さくしてコンフリクトを防ぎます。
+
+```
+main ──●──────────●──────────●──
+        \        /  \        /
+         ●──●───     ●──●───
+     feature/quiz   feature/add-phrases
+```
+
+1. 作業を始める前に `main` を最新にする
    ```
-   git switch <自分のブランチ>
-   git pull origin main
+   git switch main
+   git pull
    ```
-2. 自分のブランチで作業してコミット・プッシュ
+2. 作業用のブランチを作る
+   ```
+   git switch -c feature/やること
+   ```
+3. 作業してコミット（何回でもOK）
    ```
    git add .
    git commit -m "何をしたか"
-   git push
    ```
-3. GitHub で Pull Request を作成（`自分のブランチ` → `main`）
-4. 相手に確認してもらってから Merge
-5. 相手の変更が `main` に入ったら、自分のブランチで `git pull origin main`
+4. プッシュして、GitHub で Pull Request を作成（`feature/やること` → `main`）
+   ```
+   git push -u origin feature/やること
+   ```
+5. 相手に確認してもらい、相手が Merge する
+6. マージされたら `main` に戻って最新にし、使い終わったブランチを消す
+   ```
+   git switch main
+   git pull
+   git branch -d feature/やること
+   ```
 
-### 相手の作業に直接合流したいとき
+### ブランチ名の付け方
 
-```
-git fetch origin
-git merge origin/<相手のブランチ>
-```
+| 種類 | 名前 | 例 |
+| --- | --- | --- |
+| 機能の追加・改善 | `feature/〜` | `feature/quiz`、`feature/add-phrases` |
+| バグの修正 | `fix/〜` | `fix/audio-bug` |
+| ドキュメント | `docs/〜` | `docs/branch-rules` |
+
+名前は英小文字とハイフンで、中身がわかるように付けます。
 
 ## ルール
 
 - `main` には直接 push しない（必ず Pull Request 経由）
+- 1つのブランチでは1つの作業だけをする（関係ない変更を混ぜない）
+- 自分の Pull Request は自分でマージしない（相手が確認してからマージする）
 - 同じファイルを同時に大きく編集しない。触る前にひと声かける
 - コミットメッセージは「何をしたか」が分かるように書く（日本語OK）
 - マージ前に、ファイルに `<<<<<<<` や `>>>>>>>` が残っていないか確認する
