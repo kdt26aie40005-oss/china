@@ -165,6 +165,12 @@ body {
 .talk-examples li { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .talk-examples .btn { padding: 2px 10px; }
 
+.ja-sub { margin-top: 4px; font-size: 0.85rem; color: var(--muted); }
+.ja-sub summary { cursor: pointer; width: fit-content; user-select: none; }
+.ja-sub summary:hover { color: var(--accent); }
+.ja-sub span { display: block; margin-top: 2px; color: var(--text); }
+.talk-examples .ja-sub { flex-basis: 100%; margin: 0 0 0 44px; }
+
 .talk-finish { text-align: center; background: var(--ok-soft); border-radius: 12px; padding: 16px; }
 .talk-finish p { margin: 4px 0; }
 .talk-finish .phrase-actions { justify-content: center; margin-top: 8px; }

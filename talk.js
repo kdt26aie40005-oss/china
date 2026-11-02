@@ -109,6 +109,12 @@ function esc(text) {
   return div.innerHTML;
 }
 
+// 日本語字幕（ふだんは隠しておき、押すと表示する）
+function jaSubtitle(ja) {
+  if (lang() !== "ja" || !ja) return "";
+  return `<details class="ja-sub"><summary>日本語訳を見る</summary><span>${esc(ja)}</span></details>`;
+}
+
 // ===== 保存 =====
 function loadResults() {
   try {
@@ -207,7 +213,7 @@ function renderWithMissed(zh, missed) {
 
 function feedbackHtml(result) {
   const text = t();
-  const [zh, py] = result.answer;
+  const [zh, py, ja] = result.answer;
   if (result.needName && result.score >= PASS_SCORE - 1) {
     return `<p>${text.needName}</p>`;
   }
@@ -222,6 +228,7 @@ function feedbackHtml(result) {
   });
   return `
     <p class="talk-model">${renderWithMissed(zh, missed)} <small>${esc(py)}</small></p>
+    ${jaSubtitle(ja)}
     <p>${text.missed}</p>
     ${tips.length ? `<ul class="talk-tips">${tips.join("")}</ul>` : ""}
     <p>${text.retry}</p>
@@ -273,7 +280,7 @@ function addPartnerLine(step) {
     <p class="talk-who">${esc(talk.scenario.partner[lang()])}</p>
     <p class="chat-zh">${esc(step.zh)}</p>
     <p class="phrase-py">${esc(step.py)}</p>
-    ${lang() === "ja" ? `<p class="phrase-ja">${esc(step.ja)}</p>` : ""}
+    ${jaSubtitle(step.ja)}
     <button class="btn" data-say="${esc(step.zh)}">🔊</button>
   `;
   talkEls.log.appendChild(el);
@@ -305,7 +312,7 @@ function renderHint(step) {
         <button class="btn" data-say="${esc(zh.replace(/＿/g, ""))}">🔊</button>
         <span class="chat-zh-small">${esc(zh)}</span>
         <small class="phrase-py">${esc(py)}</small>
-        ${lang() === "ja" ? `<small class="phrase-ja">${esc(ja)}</small>` : ""}
+        ${jaSubtitle(ja)}
       </li>`
     )
     .join("");
@@ -359,13 +366,14 @@ function answer(candidates) {
 function skipStep() {
   if (!talk.waiting) return;
   const sample = currentStep().answers[0];
-  const [zh, py] = sample;
+  const [zh, py, ja] = sample;
   const el = document.createElement("div");
   el.className = "chat-msg user skipped";
   el.innerHTML = `
     <p>${t().skipped}</p>
     <p class="chat-zh">${esc(zh)}</p>
     <p class="phrase-py">${esc(py)}</p>
+    ${jaSubtitle(ja)}
     <button class="btn" data-say="${esc(zh.replace(/＿/g, ""))}">🔊</button>
   `;
   talkEls.log.appendChild(el);
