@@ -108,6 +108,7 @@ async function detectFrom(source, width, height) {
 function renderResult(word, score, isSub) {
   const card = document.createElement("div");
   card.className = "phrase-card" + (isSub ? " detect-sub" : "");
+  card.classList.toggle("learned", state.learned.has(word.zh));
   card.innerHTML = `
     ${isSub ? '<p class="detect-label">ほかの候補</p>' : ""}
     <p class="phrase-zh">${word.zh}</p>
@@ -116,13 +117,39 @@ function renderResult(word, score, isSub) {
     <div class="phrase-actions">
       <button class="btn primary" data-action="play">🔊 聞く</button>
       <button class="btn" data-action="listen">🎤 話してみる</button>
+      <button class="btn" data-action="toggle"></button>
     </div>
     <p class="feedback"></p>
   `;
   const micBtn = card.querySelector('[data-action="listen"]');
+  const toggleBtn = card.querySelector('[data-action="toggle"]');
+  const feedbackEl = card.querySelector(".feedback");
+
+  // 「覚えた」の見た目をそろえる（覚えた単語はクイズにも出る）
+  const refreshLearned = () => {
+    const learned = state.learned.has(word.zh);
+    card.classList.toggle("learned", learned);
+    toggleBtn.textContent = learned ? "✓ 覚えた" : "覚えた";
+  };
+  refreshLearned();
+
+  toggleBtn.onclick = () => {
+    if (state.learned.has(word.zh)) {
+      state.learned.delete(word.zh);
+    } else {
+      state.learned.add(word.zh);
+      feedbackEl.className = "feedback ok";
+      feedbackEl.textContent = "覚えた単語に追加しました。クイズにも出てきます";
+    }
+    saveLearned();
+    refreshLearned();
+  };
+
   card.querySelector('[data-action="play"]').onclick = () => speak(word.zh);
   if (SpeechRecognition) {
-    micBtn.onclick = () => listen(word, micBtn, card.querySelector(".feedback"));
+    micBtn.onclick = () => listen(word, micBtn, feedbackEl);
+    // 発音チェックで80点以上なら listen() が「覚えた」に記録するので、ボタン表示も更新する
+    new MutationObserver(refreshLearned).observe(feedbackEl, { attributes: true, attributeFilter: ["class"] });
   } else {
     micBtn.disabled = true;
   }

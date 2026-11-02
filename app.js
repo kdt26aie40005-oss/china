@@ -27,6 +27,13 @@ function saveLearned() {
 
 const allPhrases = PHRASE_CATEGORIES.flatMap((c) => c.items);
 
+// 「写真で単語」の花・動物（data/objects.js）。覚えたものだけクイズに出す
+const natureWords = NATURE_CATEGORIES.flatMap((c) => c.items.map((w) => ({ ...w, category: c.id })));
+
+function quizPool() {
+  return [...allPhrases, ...natureWords.filter((w) => state.learned.has(w.zh))];
+}
+
 // ===== 音声（読み上げ） =====
 let chineseVoice = null;
 
@@ -185,10 +192,15 @@ function shuffle(arr) {
 
 function nextQuiz() {
   const q = state.quiz;
-  q.answer = allPhrases[Math.floor(Math.random() * allPhrases.length)];
+  const pool = quizPool();
+  q.answer = pool[Math.floor(Math.random() * pool.length)];
   q.answered = false;
 
-  const others = shuffle(allPhrases.filter((p) => p !== q.answer)).slice(0, 3);
+  // まちがいの選択肢は同じ種類から（花の問題なら別の花、フレーズならほかのフレーズ）
+  const sameKind = q.answer.category
+    ? natureWords.filter((w) => w.category === q.answer.category)
+    : allPhrases;
+  const others = shuffle(sameKind.filter((p) => p !== q.answer)).slice(0, 3);
   const options = shuffle([q.answer, ...others]);
 
   document.getElementById("quiz-question").textContent = q.answer.ja;
