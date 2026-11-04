@@ -32,6 +32,9 @@ const TALK_TEXT = {
     toMenu: "ほかのシナリオへ",
     micError: "うまく聞き取れませんでした。もう一度試してください",
     micDenied: "マイクの使用が許可されていません。ブラウザの設定を確認してください",
+    micNetwork: "インターネットに接続されていません。🎤を使うにはインターネット接続が必要です（文字での入力はできます）",
+    micNoSpeech: "声が聞こえませんでした。マイクに近づいて話してみてください",
+    micNoDevice: "マイクが見つかりません。マイクがつながっているか確認してください",
     noMic: "このブラウザは音声認識に対応していません。文字で入力してください",
   },
   zh: {
@@ -59,6 +62,9 @@ const TALK_TEXT = {
     toMenu: "选择其他场景",
     micError: "没听清楚，请再试一次",
     micDenied: "没有麦克风权限，请检查浏览器设置",
+    micNetwork: "没有连接网络。使用🎤需要连接网络（可以用文字输入）",
+    micNoSpeech: "没有听到声音，请靠近麦克风再说一次",
+    micNoDevice: "找不到麦克风，请检查麦克风是否连接好",
     noMic: "这个浏览器不支持语音识别，请用文字输入",
   },
 };
@@ -433,6 +439,7 @@ function finish() {
 function backToMenu() {
   clearTimeout(talk.timer);
   speechSynthesis.cancel();
+  currentRecognition?.abort();
   talk.scenario = null;
   talk.waiting = false;
   talkEls.stage.hidden = true;
@@ -441,9 +448,36 @@ function backToMenu() {
 }
 
 // ===== 入力 =====
+// 音声認識のエラーを、原因がわかる文にする
+function talkMicError(error) {
+  const text = t();
+  switch (error) {
+    case "not-allowed":
+    case "service-not-allowed":
+      return text.micDenied;
+    case "network":
+      return text.micNetwork;
+    case "no-speech":
+      return text.micNoSpeech;
+    case "audio-capture":
+      return text.micNoDevice;
+    default:
+      return text.micError;
+  }
+}
+
 function listenAnswer() {
   if (!talk.waiting) return;
+  // 聞いている最中にもう一度押したら、録音を止める
+  if (talkEls.mic.classList.contains("recording")) {
+    currentRecognition?.stop();
+    return;
+  }
   const text = t();
+  if (!navigator.onLine) {
+    talkEls.status.textContent = text.micNetwork;
+    return;
+  }
   const rec = new SpeechRecognition();
   rec.lang = "zh-CN";
   rec.maxAlternatives = 5;
@@ -453,13 +487,14 @@ function listenAnswer() {
 
   rec.onresult = (e) => answer([...e.results[0]].map((r) => r.transcript));
   rec.onerror = (e) => {
-    talkEls.status.textContent = e.error === "not-allowed" ? text.micDenied : text.micError;
+    if (e.error === "aborted") return; // ほかの🎤が押されて止めたとき
+    talkEls.status.textContent = talkMicError(e.error);
   };
   rec.onend = () => {
     talkEls.mic.classList.remove("recording");
     talkEls.mic.textContent = t().speak;
   };
-  rec.start();
+  startRecognition(rec);
 }
 
 function sendTyped() {
