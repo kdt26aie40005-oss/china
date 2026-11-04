@@ -224,6 +224,7 @@ function dojoOpenArena(title) {
 function dojoCloseArena() {
   clearInterval(dojoTimer);
   speechSynthesis.cancel();
+  currentRecognition?.abort();
   dojoRun = null;
   arena.root.hidden = true;
   document.body.classList.remove("dojo-locked");
@@ -276,6 +277,7 @@ function dojoRenderQuestion() {
   const run = dojoRun;
   const q = run.questions[run.index];
   const pinyin = run.cfg.pinyin;
+  currentRecognition?.abort(); // 前の問題の録音が残っていたら止める
   run.answered = false;
   run.quitArmed = false;
   arena.quit.textContent = "棄権する";
@@ -367,6 +369,16 @@ function dojoRenderSpeak(q, box) {
   document.getElementById("dojo-giveup").onclick = () => !dojoRun.answered && dojoAnswer(false);
   mic.onclick = () => {
     if (dojoRun.answered) return;
+    // 聞いている最中にもう一度押したら、録音を止める
+    if (mic.classList.contains("recording")) {
+      currentRecognition?.stop();
+      return;
+    }
+    if (!navigator.onLine) {
+      feedback.className = "feedback ng";
+      feedback.textContent = micErrorMessage("network");
+      return;
+    }
     const rec = new SpeechRecognition();
     rec.lang = "zh-CN";
     rec.maxAlternatives = 3;
@@ -391,17 +403,15 @@ function dojoRenderSpeak(q, box) {
       }
     };
     rec.onerror = (e) => {
+      if (e.error === "aborted") return;
       feedback.className = "feedback ng";
-      feedback.textContent =
-        e.error === "not-allowed"
-          ? "マイクの使用が許可されていません。ブラウザの設定を確認してください"
-          : "うまく聞き取れませんでした。もう一度押してください";
+      feedback.textContent = micErrorMessage(e.error);
     };
     rec.onend = () => {
       mic.classList.remove("recording");
       mic.textContent = "🎤 話す";
     };
-    rec.start();
+    startRecognition(rec);
   };
 }
 
