@@ -78,7 +78,47 @@ function similarity(a, b) {
   return Math.round((1 - dp[a.length][b.length] / Math.max(a.length, b.length)) * 100);
 }
 
+// 今動いている音声認識（同時に2つ動かさないため。talk.js でも使う）
+let currentRecognition = null;
+
+function startRecognition(rec) {
+  if (currentRecognition) currentRecognition.abort(); // 前の録音は止める
+  currentRecognition = rec;
+  rec.addEventListener("end", () => {
+    if (currentRecognition === rec) currentRecognition = null;
+  });
+  rec.start();
+}
+
+// 音声認識のエラーを、原因がわかる文にする
+function micErrorMessage(error) {
+  switch (error) {
+    case "not-allowed":
+    case "service-not-allowed":
+      return "マイクの使用が許可されていません。ブラウザの設定を確認してください";
+    case "network":
+      return "インターネットに接続されていません。🎤を使うにはインターネット接続が必要です";
+    case "no-speech":
+      return "声が聞こえませんでした。マイクに近づいて話してみてください";
+    case "audio-capture":
+      return "マイクが見つかりません。マイクがつながっているか確認してください";
+    default:
+      return "うまく聞き取れませんでした。もう一度試してください";
+  }
+}
+
 function listen(target, button, feedbackEl) {
+  // 聞いている最中にもう一度押したら、録音を止める
+  if (button.classList.contains("recording")) {
+    currentRecognition?.stop();
+    return;
+  }
+  if (!navigator.onLine) {
+    feedbackEl.className = "feedback ng";
+    feedbackEl.textContent = micErrorMessage("network");
+    return;
+  }
+
   const rec = new SpeechRecognition();
   rec.lang = "zh-CN";
   rec.maxAlternatives = 3;
@@ -106,17 +146,22 @@ function listen(target, button, feedbackEl) {
     }
   };
   rec.onerror = (e) => {
+    if (e.error === "aborted") {
+      // ほかの🎤が押されて止めたときは、何も出さない
+      feedbackEl.className = "feedback";
+      feedbackEl.textContent = "";
+      return;
+    }
     feedbackEl.className = "feedback ng";
-    feedbackEl.textContent =
-      e.error === "not-allowed"
-        ? "マイクの使用が許可されていません。ブラウザの設定を確認してください"
-        : "うまく聞き取れませんでした。もう一度試してください";
+    feedbackEl.textContent = micErrorMessage(e.error);
   };
   rec.onend = () => {
     button.classList.remove("recording");
     button.textContent = "🎤 話してみる";
+    // 何も話さずに止めたときは「中国語で話してください」を消す
+    if (feedbackEl.textContent === "中国語で話してください") feedbackEl.textContent = "";
   };
-  rec.start();
+  startRecognition(rec);
 }
 
 // ===== フレーズ画面 =====
