@@ -192,3 +192,135 @@ body {
 .detect-sub { padding: 12px 16px; }
 .detect-sub .phrase-zh { font-size: 1.3rem; }
 .detect-label { margin: 0 0 4px; font-size: 0.8rem; color: var(--muted); }
+
+/* 昇級審査（空手の帯） */
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+.belt-white { --belt: #fbfaf7; --belt-edge: #cfc7bc; }
+.belt-brown { --belt: #7a4a26; --belt-edge: #5a3418; }
+.belt-black { --belt: #1c1c1c; --belt-edge: #000000; }
+@media (prefers-color-scheme: dark) {
+  .belt-black { --belt-edge: #5f5a55; }
+}
+
+.belt { position: relative; display: inline-block; width: 220px; height: 58px; }
+.belt-band, .belt-knot, .belt-tail {
+  position: absolute; background-color: var(--belt); border: 1px solid var(--belt-edge);
+  transition: background-color 0.6s, border-color 0.6s;
+}
+.belt-band {
+  top: 8px; left: 0; right: 0; height: 18px; border-radius: 3px;
+  background-image: repeating-linear-gradient(0deg, transparent 0 4px, rgba(128, 128, 128, 0.18) 4px 5px);
+}
+.belt-knot {
+  top: 2px; left: 50%; width: 30px; height: 30px; transform: translateX(-50%);
+  border-radius: 6px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+.belt-tail { top: 22px; width: 14px; height: 34px; border-radius: 2px; transform-origin: top center; }
+.belt-tail-l { left: calc(50% - 15px); transform: rotate(20deg); }
+.belt-tail-r { left: calc(50% + 1px); transform: rotate(-20deg); }
+.belt-stripes { position: absolute; top: 0; bottom: 0; right: 12px; display: flex; gap: 3px; }
+.belt-stripes i { width: 3px; background: #d4af37; }
+
+.belt-display {
+  display: inline-flex; flex-direction: column; align-items: center; gap: 2px;
+  background: none; border: none; color: var(--text); font: inherit; cursor: pointer;
+  padding: 4px 12px; border-radius: 12px;
+}
+.belt-display:hover { background: var(--accent-soft); }
+.belt-label { font-size: 1.2rem; font-weight: bold; }
+.belt-color { margin-left: 8px; font-size: 0.85rem; font-weight: normal; color: var(--muted); }
+.belt-celebrate .belt { animation: belt-pop 1s ease-out; }
+@keyframes belt-pop {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.3) rotate(-4deg); }
+  55% { transform: scale(1.15) rotate(3deg); }
+  100% { transform: scale(1); }
+}
+
+.dojo-status {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 16px;
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px;
+}
+.dojo-status-belt, .dojo-finish-belt { display: inline-flex; flex-direction: column; align-items: center; }
+.dojo-status-text p { margin: 0; }
+.dojo-streak { font-size: 1.15rem; font-weight: bold; }
+.dojo-card { margin-top: 12px; }
+.dojo-card-title { font-weight: bold; margin: 0 0 8px; }
+.dojo-special {
+  margin-left: 8px; padding: 2px 10px; border-radius: 999px;
+  background: var(--accent); color: #fff; font-size: 0.8rem;
+}
+.dojo-rules { margin: 0 0 12px; padding-left: 1.2em; }
+.dojo-big-btn { padding: 10px 22px; font-size: 1rem; }
+.dojo-heading { font-size: 1.05rem; margin: 24px 0 8px; }
+.dojo-ladder {
+  list-style: none; padding: 0; margin: 0;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 6px;
+}
+.dojo-ladder li {
+  display: flex; align-items: center; gap: 8px; padding: 6px 10px;
+  background: var(--card); border: 1px solid var(--border); border-radius: 8px; color: var(--muted);
+}
+.dojo-ladder li.done { color: var(--text); }
+.dojo-ladder li.current { color: var(--text); font-weight: bold; border-color: var(--accent); }
+.belt-chip {
+  flex: none; width: 26px; height: 8px; border-radius: 2px;
+  background: var(--belt); border: 1px solid var(--belt-edge);
+}
+.dojo-here { margin-left: auto; font-size: 0.7rem; color: var(--accent); }
+.dojo-history { list-style: none; padding: 0; margin: 0; }
+.dojo-history li { padding: 6px 0; border-bottom: 1px solid var(--border); }
+.dojo-ok { color: var(--ok); }
+.dojo-ng { color: var(--ng); }
+.dojo-card select {
+  padding: 4px 8px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--card); color: var(--text);
+}
+
+/* 審査・道場破り・稽古の画面 */
+body.dojo-locked { overflow: hidden; }
+.dojo-arena {
+  position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center;
+  padding: 16px; background: rgba(0, 0, 0, 0.55);
+}
+.dojo-arena[hidden] { display: none; }
+.dojo-arena-card {
+  width: 100%; max-width: 560px; max-height: calc(100vh - 32px); overflow: auto;
+  background: var(--card); border-radius: 16px; padding: 20px;
+}
+.dojo-arena-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+.dojo-arena-title { margin: 0; font-weight: bold; }
+.dojo-progress { display: flex; justify-content: space-between; color: var(--muted); font-size: 0.9rem; }
+.dojo-timer { height: 6px; margin: 6px 0; border-radius: 3px; background: var(--border); overflow: hidden; }
+.dojo-timer-bar { height: 100%; width: 100%; background: var(--ok); transition: width 0.1s linear; }
+.dojo-timer-bar.hurry { background: var(--ng); }
+.dojo-py { display: block; font-size: 1rem; font-weight: normal; color: var(--accent); }
+.dojo-replay { font-size: 1.1rem; }
+#dojo-options .quiz-option:disabled { cursor: default; color: var(--text); }
+
+.dojo-raid-intro, .dojo-finish { text-align: center; }
+.dojo-raid-emoji { font-size: 3rem; margin: 0; }
+.dojo-raid-headline {
+  font-size: 1.6rem; font-weight: bold; color: var(--ng); margin: 0 0 8px;
+  animation: raid-shake 0.5s 2;
+}
+@keyframes raid-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+.dojo-finish-headline { font-size: 1.5rem; font-weight: bold; margin: 8px 0; }
+.dojo-finish.passed .dojo-finish-headline { color: var(--ok); }
+.dojo-finish.failed .dojo-finish-headline { color: var(--ng); }
+.dojo-finish-score { color: var(--muted); margin: 0; }
+.dojo-finish-belt { margin: 16px 0 8px; }
+
+.confetti-canvas { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 200; }
+
+@media (prefers-reduced-motion: reduce) {
+  .belt-celebrate .belt, .dojo-raid-headline { animation: none; }
+}
