@@ -34,6 +34,31 @@
     <!-- フレーズ -->
     <section id="view-phrases" class="view">
       <div id="categories" class="categories"></div>
+
+      <!-- 翻訳して単語を追加（「自分で追加」を選んだときだけ表示。translate.js） -->
+      <div id="custom-add" class="custom-add" hidden>
+        <p class="custom-add-title">日本語から中国語に翻訳して追加</p>
+        <p class="hint">AIが訳します。AIの訳はまちがうことがあるので、確かめてから追加してください。
+          翻訳はこの端末の中で行われ、入力した言葉は送信されません（初回だけAIのダウンロードが約630MBあります）。</p>
+        <div class="talk-input-row">
+          <input id="mt-input" type="text" maxlength="40" placeholder="例：りんご、駅はどこですか？">
+          <button id="mt-translate" class="btn primary" type="button">翻訳する</button>
+        </div>
+        <p id="mt-status" class="detect-status"></p>
+        <div id="mt-result" class="mt-result" hidden>
+          <label>中国語<input id="mt-zh" type="text" maxlength="40"></label>
+          <label>ピンイン<input id="mt-py" type="text" maxlength="120"></label>
+          <label>日本語<input id="mt-ja" type="text" maxlength="40"></label>
+          <p id="mt-back" class="mt-back"></p>
+          <p id="mt-warn" class="mt-warn" hidden></p>
+          <div class="phrase-actions">
+            <button id="mt-play" class="btn" type="button">🔊 聞く</button>
+            <button id="mt-add" class="btn primary" type="button">追加する</button>
+            <button id="mt-cancel" class="btn" type="button">やめる</button>
+          </div>
+        </div>
+      </div>
+
       <div id="phrase-list" class="phrase-list"></div>
     </section>
 
@@ -144,6 +169,7 @@
   <script src="app.js"></script>
   <script src="talk.js"></script>
   <script src="camera.js"></script>
+  <script src="translate.js"></script>
   <script src="confetti.js"></script>
   <script src="dojo.js"></script>
 </body>
