@@ -27,11 +27,62 @@ function saveLearned() {
 
 const allPhrases = PHRASE_CATEGORIES.flatMap((c) => c.items);
 
+// ===== 自分で追加した単語（translate.js で翻訳して追加する） =====
+// PHRASE_CATEGORIES には入れない（昇級審査 dojo.js の出題に、確かめていない単語が混ざらないように）
+const CUSTOM_STORAGE_KEY = "chinalanguage-custom-words";
+const CUSTOM_CATEGORY = { id: "custom", name: "📝 自分で追加", items: loadCustomWords() };
+
+function loadCustomWords() {
+  try {
+    const words = JSON.parse(localStorage.getItem(CUSTOM_STORAGE_KEY)) || [];
+    return words.filter((w) => w && typeof w.zh === "string" && typeof w.py === "string" && typeof w.ja === "string");
+  } catch {
+    return [];
+  }
+}
+
+function saveCustomWords() {
+  try {
+    localStorage.setItem(CUSTOM_STORAGE_KEY, JSON.stringify(CUSTOM_CATEGORY.items));
+  } catch {
+    // 保存できなくてもアプリは動かす
+  }
+}
+
+function addCustomWord({ zh, py, ja }) {
+  CUSTOM_CATEGORY.items.push({ zh, py, ja });
+  saveCustomWords();
+}
+
+function removeCustomWord(zh) {
+  CUSTOM_CATEGORY.items = CUSTOM_CATEGORY.items.filter((w) => w.zh !== zh);
+  saveCustomWords();
+  state.learned.delete(zh);
+  saveLearned();
+}
+
+// フレーズ画面のカテゴリ（最後に「自分で追加」）
+function phraseCategories() {
+  return [...PHRASE_CATEGORIES, CUSTOM_CATEGORY];
+}
+
+// 練習・クイズに使うフレーズ（もとのフレーズ ＋ 自分で追加した単語）
+function studyPhrases() {
+  return [...allPhrases, ...CUSTOM_CATEGORY.items];
+}
+
+// 自分で入力した文字を、HTML として表示しても安全にする
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
+}
+
 // 「写真で単語」の花・動物（data/objects.js）。覚えたものだけクイズに出す
 const natureWords = NATURE_CATEGORIES.flatMap((c) => c.items.map((w) => ({ ...w, category: c.id })));
 
 function quizPool() {
-  return [...allPhrases, ...natureWords.filter((w) => state.learned.has(w.zh))];
+  return [...studyPhrases(), ...natureWords.filter((w) => state.learned.has(w.zh))];
 }
 
 // ===== 音声（読み上げ） =====
@@ -168,7 +219,7 @@ function listen(target, button, feedbackEl) {
 function renderCategories() {
   const el = document.getElementById("categories");
   el.innerHTML = "";
-  for (const c of PHRASE_CATEGORIES) {
+  for (const c of phraseCategories()) {
     const btn = document.createElement("button");
     btn.className = "btn" + (c.id === state.category ? " active" : "");
     btn.textContent = c.name;
@@ -182,22 +233,30 @@ function renderCategories() {
 }
 
 function renderPhrases() {
-  const category = PHRASE_CATEGORIES.find((c) => c.id === state.category);
+  const category = phraseCategories().find((c) => c.id === state.category);
+  const isCustom = category.id === CUSTOM_CATEGORY.id;
   const list = document.getElementById("phrase-list");
   list.innerHTML = "";
+
+  // 「自分で追加」のときだけ、翻訳して追加する欄を出す（translate.js）
+  document.getElementById("custom-add").hidden = !isCustom;
+  if (isCustom && !category.items.length) {
+    list.innerHTML = '<p class="hint">まだ追加した単語はありません。上の欄に日本語を入れて翻訳してみよう。</p>';
+  }
 
   for (const p of category.items) {
     const learned = state.learned.has(p.zh);
     const card = document.createElement("div");
     card.className = "phrase-card" + (learned ? " learned" : "");
     card.innerHTML = `
-      <p class="phrase-zh">${p.zh}</p>
-      <p class="phrase-py">${p.py}</p>
-      <p class="phrase-ja">${p.ja}</p>
+      <p class="phrase-zh">${escapeHtml(p.zh)}</p>
+      <p class="phrase-py">${escapeHtml(p.py)}</p>
+      <p class="phrase-ja">${escapeHtml(p.ja)}</p>
       <div class="phrase-actions">
         <button class="btn primary" data-action="play">🔊 聞く</button>
         <button class="btn" data-action="listen">🎤 話してみる</button>
         <button class="btn" data-action="toggle">${learned ? "✓ 覚えた" : "覚えた"}</button>
+        ${isCustom ? '<button class="btn" data-action="delete">🗑 削除</button>' : ""}
       </div>
       <p class="feedback"></p>
     `;
@@ -215,14 +274,22 @@ function renderPhrases() {
       saveLearned();
       renderPhrases();
     };
+    if (isCustom) {
+      card.querySelector('[data-action="delete"]').onclick = () => {
+        if (!confirm(`「${p.zh}」を削除しますか？`)) return;
+        removeCustomWord(p.zh);
+        renderPhrases();
+      };
+    }
     list.appendChild(card);
   }
   renderProgress();
 }
 
 function renderProgress() {
-  const count = allPhrases.filter((p) => state.learned.has(p.zh)).length;
-  document.getElementById("progress").textContent = `覚えたフレーズ: ${count} / ${allPhrases.length}`;
+  const phrases = studyPhrases();
+  const count = phrases.filter((p) => state.learned.has(p.zh)).length;
+  document.getElementById("progress").textContent = `覚えたフレーズ: ${count} / ${phrases.length}`;
 }
 
 // ===== クイズ画面 =====
@@ -244,7 +311,7 @@ function nextQuiz() {
   // まちがいの選択肢は同じ種類から（花の問題なら別の花、フレーズならほかのフレーズ）
   const sameKind = q.answer.category
     ? natureWords.filter((w) => w.category === q.answer.category)
-    : allPhrases;
+    : studyPhrases();
   const others = shuffle(sameKind.filter((p) => p !== q.answer)).slice(0, 3);
   const options = shuffle([q.answer, ...others]);
 
@@ -257,7 +324,7 @@ function nextQuiz() {
     const btn = document.createElement("button");
     btn.className = "quiz-option";
     btn.dataset.zh = opt.zh;
-    btn.innerHTML = `${opt.zh}<small>${opt.py}</small>`;
+    btn.innerHTML = `${escapeHtml(opt.zh)}<small>${escapeHtml(opt.py)}</small>`;
     btn.onclick = () => answerQuiz(opt, btn);
     box.appendChild(btn);
   }

@@ -493,3 +493,20 @@ body.dojo-locked { overflow: hidden; }
 
 /* 審査・道場破り・稽古の画面は、朱色の線を付けた和紙 */
 .dojo-arena-card { border-top: 6px solid var(--shu); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); }
+
+/* 翻訳して単語を追加（フレーズの「自分で追加」） */
+.custom-add {
+  background: var(--card); border: 1px solid var(--border); border-top: 5px solid var(--line-shu);
+  border-radius: var(--radius); padding: 16px; margin-bottom: 16px; box-shadow: var(--shadow);
+}
+.custom-add-title { margin: 0; font-weight: bold; font-family: var(--font-head); font-size: 1.1rem; }
+.custom-add .hint { font-size: 0.85rem; margin: 4px 0 12px; }
+.custom-add input {
+  flex: 1; min-width: 0; padding: 6px 12px; font: inherit; border-radius: 4px;
+  border: 1px solid var(--border); background: var(--bg); color: var(--text);
+}
+.mt-result { display: grid; gap: 8px; margin-top: 8px; padding-top: 12px; border-top: 1px dashed var(--border); }
+.mt-result label { display: grid; grid-template-columns: 5.5em 1fr; align-items: center; gap: 8px; color: var(--muted); }
+#mt-zh { font-family: var(--font-zh); font-size: 1.4rem; }
+.mt-back { margin: 0; color: var(--muted); }
+.mt-warn { margin: 0; color: var(--ng); white-space: pre-line; font-size: 0.9rem; }
