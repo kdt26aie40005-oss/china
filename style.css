@@ -510,3 +510,25 @@ body.dojo-locked { overflow: hidden; }
 #mt-zh { font-family: var(--font-zh); font-size: 1.4rem; }
 .mt-back { margin: 0; color: var(--muted); }
 .mt-warn { margin: 0; color: var(--ng); white-space: pre-line; font-size: 0.9rem; }
+
+/* ヘッダーの看板（帯の左側に、木の看板とアプリの名前） */
+.header { position: relative; }
+.header .site-sign {
+  position: absolute; top: 12px; left: 24px;
+  width: 280px; aspect-ratio: 2048 / 768; margin: 0;
+  display: grid; place-items: center;
+  font-family: var(--font-head); font-size: 1.35rem; font-weight: bold; letter-spacing: 0.12em;
+  color: #3a1f0e; text-shadow: 0 1px 0 rgba(255, 230, 180, 0.6); /* 板に彫ったように見せる */
+}
+/* 画像のまわりの黒い部分は、ヘッダーの色になじませて見えなくする */
+.header .site-sign::before {
+  content: ""; position: absolute; inset: 0;
+  background: url("picture/haikei2.png") center / contain no-repeat;
+  mix-blend-mode: lighten;
+}
+.header .site-sign span { position: relative; } /* 画像より上に文字を出す */
+
+/* 画面がせまいときは、帯の上に真ん中で出す */
+@media (max-width: 860px) {
+  .header .site-sign { position: relative; top: auto; left: auto; width: 240px; margin: 0 auto 4px; font-size: 1.15rem; }
+}
