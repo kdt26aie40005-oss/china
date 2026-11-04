@@ -1,55 +1,151 @@
+/* ===== 道場テーマ =====
+   木の床・漆塗りの看板・和紙のカード・朱色のはんこ */
 :root {
-  --bg: #f7f5f2;
-  --card: #ffffff;
-  --text: #222222;
-  --muted: #6b6b6b;
-  --accent: #c0392b;
-  --accent-soft: #fbeae8;
+  /* 和紙と墨 */
+  --bg: #f1e6cf;          /* 入力欄・選択肢など、和紙より少し濃い面 */
+  --card: #fbf6ea;        /* 和紙 */
+  --text: #2b1d14;        /* 墨 */
+  --muted: #6a5440;
+  --border: #c9b08a;
+  --radius: 6px;
+  --shadow: 0 2px 6px rgba(60, 35, 15, 0.18);
+
+  /* 朱色（はんこ・ボタン）と、強調の色 */
+  --shu: #b7282e;
+  --on-shu: #ffffff;
+  --accent: #b7282e;
+  --accent-soft: #f6e3d6;
+  --sumi: #2b1d14;        /* 黒帯・選ばれたカテゴリ */
+  --on-sumi: #fbf6ea;
+
   --ok: #2e7d32;
-  --ok-soft: #e6f4e7;
+  --ok-soft: #e6f0dc;
   --ng: #c62828;
-  --border: #e3dfda;
+  --ng-soft: #f9e1dc;
+
+  /* カードの上の線（朱と墨を交互に。帯の色と見まちがえないよう2色だけ） */
+  --line-shu: #b7282e;
+  --line-sumi: #2b1d14;
+
+  /* 声調の色（伝統色：朱・山吹・緑青・藍） */
+  --tone-1: #c53d43;
+  --tone-2: #b8740c;
+  --tone-3: #2f8064;
+  --tone-4: #284f8f;
+
+  /* 木の床（板の色を3枚ずつくり返す） */
+  --floor-1: #ead6ae;
+  --floor-2: #e2c999;
+  --floor-3: #e7d1a5;
+  --floor-seam: rgba(90, 60, 30, 0.22);
+  --floor-grain: rgba(120, 80, 40, 0.05);
+
+  /* 看板（ヘッダー） */
+  --board: linear-gradient(180deg, #2e2018 0%, #1a110c 100%);
+  --board-text: #f5ead0;
+  --board-sub: #d4c09a;
+  --plate: #f0e2c2;        /* 名札（タブ） */
+  --plate-text: #2b1d14;
+  --rod: #3a2a1e;          /* 掛け軸の軸 */
+  --photo-veil: rgba(255, 248, 235, 0.3); /* 背景の写真に重ねて文字を読みやすくする膜 */
+
+  --font-zh: "KaiTi", "STKaiti", "楷体", "Kaiti SC", "Yu Mincho", serif; /* 楷書体がないPCは明朝体 */
+  --font-head: "Yu Mincho", "YuMincho", "Hiragino Mincho ProN", "MS Mincho", serif;
 }
 
+/* 夜の道場 */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #181716;
-    --card: #232120;
-    --text: #eeeeee;
-    --muted: #a5a19c;
-    --accent: #e8655a;
-    --accent-soft: #3a2422;
-    --ok: #7bc47f;
-    --ok-soft: #1f3321;
-    --ng: #ef7b7b;
-    --border: #3a3734;
+    --bg: #2f251c;
+    --card: #2a2119;
+    --text: #efe4cc;
+    --muted: #b9a88a;
+    --border: #5a4632;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+
+    --shu: #b8352f;
+    --on-shu: #ffffff;
+    --accent: #ec7d72;
+    --accent-soft: #3d2620;
+    --sumi: #efe4cc;
+    --on-sumi: #1a120c;
+
+    --ok: #8fcb83;
+    --ok-soft: #22301d;
+    --ng: #f08a80;
+    --ng-soft: #3d2420;
+
+    --line-shu: #c8463f;
+    --line-sumi: #a08c70; /* 暗いカードの上でも見えるよう、明るい木の色 */
+
+    --tone-1: #ec7d72;
+    --tone-2: #e2a948;
+    --tone-3: #6cbf9c;
+    --tone-4: #84a8e6;
+
+    --floor-1: #3a2a1e;
+    --floor-2: #33251a;
+    --floor-3: #38281c;
+    --floor-seam: rgba(0, 0, 0, 0.45);
+    --floor-grain: rgba(255, 220, 170, 0.03);
+
+    --board: linear-gradient(180deg, #120c08 0%, #070504 100%);
+    --plate: #5a4632;
+    --plate-text: #efe4cc;
+    --rod: #120c08;
+    --photo-veil: rgba(15, 9, 5, 0.6);
   }
 }
 
 * { box-sizing: border-box; }
 
+/* 道場の写真の背景（読み込めないときは下の木の床の模様が見える） */
+body::before {
+  content: "";
+  position: fixed; inset: 0; z-index: -1;
+  background:
+    linear-gradient(var(--photo-veil), var(--photo-veil)),
+    url("picture/haikei1.png") center bottom / cover no-repeat;
+}
+
 body {
   margin: 0;
-  background: var(--bg);
+  min-height: 100vh;
+  background:
+    repeating-linear-gradient(90deg, var(--floor-seam) 0 1px, transparent 1px 120px),
+    repeating-linear-gradient(90deg, transparent 0 7px, var(--floor-grain) 7px 9px, transparent 9px 23px),
+    repeating-linear-gradient(90deg, var(--floor-1) 0 120px, var(--floor-2) 120px 240px, var(--floor-3) 240px 360px);
   color: var(--text);
   font-family: system-ui, "Hiragino Sans", "Yu Gothic UI", "Microsoft YaHei", sans-serif;
   line-height: 1.6;
 }
 
+/* 看板（ヘッダー） */
 .header {
   text-align: center;
   padding: 24px 16px 0;
+  background: var(--board);
+  color: var(--board-text);
+  border-bottom: 4px solid var(--shu);
+  box-shadow: 0 4px 10px rgba(40, 20, 10, 0.35);
 }
-.header h1 { margin: 0; font-size: 1.8rem; color: var(--accent); }
-.subtitle { margin: 4px 0 16px; color: var(--muted); }
+.header h1 {
+  margin: 0; font-size: 2rem; color: var(--board-text);
+  font-family: var(--font-head); letter-spacing: 0.2em;
+}
+.subtitle { margin: 4px 0 16px; color: var(--board-sub); font-family: var(--font-head); }
 
-.tabs { display: flex; justify-content: center; gap: 8px; border-bottom: 1px solid var(--border); }
+/* 名札（タブ） */
+.tabs { display: flex; justify-content: center; gap: 6px; }
 .tab {
-  background: none; border: none; color: var(--muted);
-  padding: 10px 18px; font-size: 1rem; cursor: pointer;
-  border-bottom: 3px solid transparent;
+  background: var(--plate); color: var(--plate-text);
+  border: 1px solid rgba(0, 0, 0, 0.35); border-bottom: none; border-radius: 4px 4px 0 0;
+  padding: 8px 16px; font-size: 1rem; cursor: pointer;
+  font-family: var(--font-head); font-weight: bold;
+  opacity: 0.85;
 }
-.tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: bold; }
+.tab:hover { opacity: 1; }
+.tab.active { background: var(--shu); color: var(--on-shu); opacity: 1; }
 
 .container { max-width: 760px; margin: 0 auto; padding: 16px; }
 
@@ -57,105 +153,146 @@ body {
   display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
   gap: 8px; color: var(--muted); font-size: 0.9rem; margin-bottom: 12px;
 }
-.settings input { vertical-align: middle; }
-.warning { background: var(--accent-soft); padding: 8px 12px; border-radius: 8px; font-size: 0.9rem; }
+.settings input { vertical-align: middle; accent-color: var(--shu); }
+.warning { background: var(--accent-soft); padding: 8px 12px; border-radius: var(--radius); font-size: 0.9rem; }
 .hint { color: var(--muted); }
 
 .btn {
   border: 1px solid var(--border); background: var(--card); color: var(--text);
-  border-radius: 999px; padding: 6px 14px; font-size: 0.9rem; cursor: pointer;
+  border-radius: 4px; padding: 6px 14px; font-size: 0.9rem; cursor: pointer;
 }
-.btn:hover { border-color: var(--accent); }
-.btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn:hover { border-color: var(--shu); }
+.btn.primary { background: var(--shu); color: var(--on-shu); border-color: var(--shu); }
 .btn.recording { background: var(--ng); color: #fff; border-color: var(--ng); }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .categories { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-.categories .btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.categories .btn.active { background: var(--sumi); color: var(--on-sumi); border-color: var(--sumi); }
 
+/* 和紙のカード */
 .phrase-list { display: grid; gap: 12px; }
 .phrase-card, .quiz-card, .tone-card {
-  background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px;
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px;
+  box-shadow: var(--shadow);
 }
-.phrase-card.learned { border-left: 5px solid var(--ok); }
-.phrase-zh { font-size: 1.7rem; margin: 0; }
+/* カードの上の線は朱と墨を交互に */
+.phrase-card { position: relative; border-top: 5px solid var(--line-shu); }
+.phrase-card:nth-child(even) { border-top-color: var(--line-sumi); }
+.quiz-card { border-top: 5px solid var(--line-sumi); }
+/* 覚えたカードには朱色のはんこ「習得」 */
+.phrase-card.learned::after {
+  content: "習得";
+  position: absolute; top: 14px; right: 16px;
+  width: 58px; height: 58px; border-radius: 50%;
+  display: grid; place-items: center;
+  border: 3px solid var(--shu); color: var(--shu);
+  font-family: var(--font-head); font-weight: bold; font-size: 1rem; letter-spacing: 0.1em;
+  transform: rotate(-12deg); opacity: 0.85; pointer-events: none;
+}
+.phrase-zh { font-size: 1.9rem; margin: 0; font-family: var(--font-zh); }
 .phrase-py { color: var(--accent); margin: 0; font-size: 1.05rem; }
 .phrase-ja { color: var(--muted); margin: 4px 0 12px; }
 .phrase-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .feedback { margin: 10px 0 0; font-size: 0.95rem; }
 .feedback.ok { color: var(--ok); }
 .feedback.ng { color: var(--ng); }
-.progress { font-weight: bold; color: var(--ok); }
+.progress {
+  font-weight: bold; color: var(--text);
+  background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 2px 10px;
+}
 
 .quiz-label { color: var(--muted); margin: 0; }
-.quiz-question { font-size: 1.4rem; font-weight: bold; margin: 4px 0 16px; }
+.quiz-question { font-size: 1.4rem; font-weight: bold; margin: 4px 0 16px; font-family: var(--font-head); }
 .quiz-options { display: grid; gap: 8px; }
 .quiz-option {
-  text-align: left; padding: 12px 16px; border-radius: 10px;
+  text-align: left; padding: 12px 16px; border-radius: var(--radius);
   border: 1px solid var(--border); background: var(--bg); color: var(--text);
-  font-size: 1.2rem; cursor: pointer;
+  font-size: 1.3rem; cursor: pointer; font-family: var(--font-zh);
 }
-.quiz-option small { display: block; color: var(--muted); font-size: 0.85rem; }
+.quiz-option small { display: block; color: var(--muted); font-size: 0.85rem; font-family: system-ui, sans-serif; }
 .quiz-option.correct { background: var(--ok-soft); border-color: var(--ok); }
-.quiz-option.wrong { background: var(--accent-soft); border-color: var(--ng); }
+.quiz-option.wrong { background: var(--ng-soft); border-color: var(--ng); }
 .quiz-result { min-height: 1.6em; font-weight: bold; }
 .quiz-footer { display: flex; justify-content: space-between; align-items: center; }
 
-.tone-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
-.tone-card { text-align: center; cursor: pointer; }
-.tone-card:hover { border-color: var(--accent); }
-.tone-zh { font-size: 2.4rem; margin: 0; }
-.tone-name { font-weight: bold; color: var(--accent); margin: 0; }
+/* 掛け軸（声調カード） */
+.tone-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; }
+.tone-card {
+  --tone: var(--tone-1);
+  text-align: center; cursor: pointer; padding: 24px 16px;
+  border-radius: 2px; border: none;
+  border-top: 10px solid var(--rod); border-bottom: 10px solid var(--rod);
+  outline: 2px solid var(--tone); outline-offset: -10px;
+  transition: transform 0.15s;
+}
+/* 声調ごとに色を分ける（第1声 朱・第2声 山吹・第3声 緑青・第4声 藍） */
+.tone-card:nth-child(2) { --tone: var(--tone-2); }
+.tone-card:nth-child(3) { --tone: var(--tone-3); }
+.tone-card:nth-child(n + 4) { --tone: var(--tone-4); }
+.tone-card .tone-zh,
+.tone-card .phrase-py,
+.tone-card .tone-name { color: var(--tone); }
+.tone-card:hover { transform: translateY(-2px); }
+.tone-zh { font-size: 2.8rem; margin: 0; font-family: var(--font-zh); }
+.tone-name { font-weight: bold; color: var(--accent); margin: 0; font-family: var(--font-head); }
 .tone-desc { color: var(--muted); font-size: 0.85rem; margin: 6px 0 0; }
 
 /* 会話練習 */
 .talk-settings select {
-  margin-left: 4px; padding: 4px 8px; border-radius: 8px;
+  margin-left: 4px; padding: 4px 8px; border-radius: 4px;
   border: 1px solid var(--border); background: var(--card); color: var(--text);
 }
 .talk-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
 .talk-card {
   display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left;
   background: var(--card); color: var(--text); border: 1px solid var(--border);
-  border-radius: 12px; padding: 14px 16px; font: inherit; cursor: pointer;
+  border-radius: var(--radius); padding: 14px 16px; font: inherit; cursor: pointer;
+  box-shadow: var(--shadow); border-top: 5px solid var(--line-shu); transition: transform 0.15s;
 }
-.talk-card:hover { border-color: var(--accent); }
+.talk-card:nth-child(even) { border-top-color: var(--line-sumi); }
+.talk-card:hover { transform: translateY(-2px); }
 .talk-card-icon { font-size: 1.8rem; }
-.talk-card-title { font-weight: bold; font-size: 1.1rem; }
+.talk-card-title { font-weight: bold; font-size: 1.1rem; font-family: var(--font-head); }
 .talk-card-sub { color: var(--muted); font-size: 0.85rem; }
 .talk-card-done { color: var(--ok); font-size: 0.85rem; font-weight: bold; }
 
 .talk-header { display: flex; align-items: center; gap: 12px; }
-.talk-title { font-weight: bold; font-size: 1.1rem; }
+.talk-title { font-weight: bold; font-size: 1.1rem; font-family: var(--font-head); }
 
 .chat-log { display: flex; flex-direction: column; gap: 12px; margin: 16px 0; }
-.chat-msg { max-width: 85%; border-radius: 12px; padding: 12px 16px; border: 1px solid var(--border); }
+.chat-msg {
+  max-width: 85%; border-radius: var(--radius); padding: 12px 16px;
+  border: 1px solid var(--border); box-shadow: var(--shadow);
+}
 .chat-msg p { margin: 0; }
 .chat-msg.ai { align-self: flex-start; background: var(--card); }
 .chat-msg.user { align-self: flex-end; background: var(--accent-soft); }
 .chat-msg.skipped { opacity: 0.75; }
 .chat-msg .btn { margin-top: 8px; }
-.chat-zh { font-size: 1.4rem; }
-.chat-zh-small { font-size: 1.15rem; }
+.chat-zh { font-size: 1.5rem; font-family: var(--font-zh); }
+.chat-zh-small { font-size: 1.2rem; font-family: var(--font-zh); }
 .talk-who { color: var(--muted); font-size: 0.8rem; }
 .chat-feedback {
-  margin-top: 10px; padding: 10px 12px; border-radius: 8px;
+  margin-top: 10px; padding: 10px 12px; border-radius: 4px;
   background: var(--card); border-left: 4px solid var(--ng); font-size: 0.9rem;
 }
 .chat-feedback p { margin: 2px 0; }
 .chat-feedback.ok { border-left-color: var(--ok); }
 .chat-feedback-title { font-weight: bold; color: var(--ng); }
 .chat-feedback.ok .chat-feedback-title { color: var(--ok); }
-.talk-model { font-size: 1.2rem; }
-.talk-model small { color: var(--accent); font-size: 0.85rem; }
+.talk-model { font-size: 1.3rem; font-family: var(--font-zh); }
+.talk-model small { color: var(--accent); font-size: 0.85rem; font-family: system-ui, sans-serif; }
 .talk-tips { margin: 4px 0; padding-left: 20px; }
 .missed { color: var(--ng); font-weight: bold; text-decoration: underline; }
 
-.talk-turn { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; }
+.talk-turn {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 12px 16px; box-shadow: var(--shadow);
+}
 .talk-turn-label { margin: 0 0 8px; font-weight: bold; color: var(--accent); }
 .talk-input-row { display: flex; gap: 8px; margin-bottom: 8px; }
 .talk-input-row input {
-  flex: 1; min-width: 0; padding: 6px 12px; font: inherit; border-radius: 999px;
+  flex: 1; min-width: 0; padding: 6px 12px; font: inherit; border-radius: 4px;
   border: 1px solid var(--border); background: var(--bg); color: var(--text);
 }
 .talk-status { color: var(--ng); font-size: 0.9rem; min-height: 1.2em; margin: 6px 0 0; }
@@ -171,10 +308,13 @@ body {
 .ja-sub span { display: block; margin-top: 2px; color: var(--text); }
 .talk-examples .ja-sub { flex-basis: 100%; margin: 0 0 0 44px; }
 
-.talk-finish { text-align: center; background: var(--ok-soft); border-radius: 12px; padding: 16px; }
+.talk-finish {
+  text-align: center; background: var(--card); border: 2px solid var(--shu);
+  border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow);
+}
 .talk-finish p { margin: 4px 0; }
 .talk-finish .phrase-actions { justify-content: center; margin-top: 8px; }
-.talk-finish-title { font-size: 1.4rem; font-weight: bold; color: var(--ok); }
+.talk-finish-title { font-size: 1.5rem; font-weight: bold; color: var(--shu); font-family: var(--font-head); }
 
 /* 写真で単語（画像認識） */
 .tabs { flex-wrap: wrap; }
@@ -185,12 +325,12 @@ body {
 .detect-stage video,
 .detect-stage canvas {
   display: block; max-width: 100%; height: auto;
-  border-radius: 12px; border: 1px solid var(--border);
+  border-radius: var(--radius); border: 1px solid var(--border);
 }
 .detect-stage [hidden] { display: none; }
 .detect-score { font-size: 0.85rem; margin-left: 6px; }
 .detect-sub { padding: 12px 16px; }
-.detect-sub .phrase-zh { font-size: 1.3rem; }
+.detect-sub .phrase-zh { font-size: 1.4rem; }
 .detect-label { margin: 0 0 4px; font-size: 0.8rem; color: var(--muted); }
 
 /* 昇級審査（空手の帯） */
@@ -324,3 +464,32 @@ body.dojo-locked { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   .belt-celebrate .belt, .dojo-raid-headline { animation: none; }
 }
+
+/* ===== 道場テーマに合わせる（昇級審査） =====
+   上の「昇級審査」の部分はそのままにして、ここで見た目だけ上書きする */
+.header .belt-display { color: var(--board-text); }
+.header .belt-display .belt-color { color: var(--board-sub); }
+.header .belt-display:hover { background: rgba(255, 255, 255, 0.08); }
+.header .belt-black { --belt-edge: #a08c70; } /* 黒い看板の上でも黒帯が見えるように */
+.belt-label { font-family: var(--font-head); }
+
+.dojo-status, .dojo-ladder li, .dojo-arena-card { border-radius: var(--radius); }
+.dojo-status, .dojo-ladder li { box-shadow: var(--shadow); }
+.dojo-card select { border-radius: 4px; }
+.dojo-special { background: var(--shu); color: var(--on-shu); }
+
+.dojo-heading, .dojo-card-title, .dojo-arena-title,
+.dojo-finish-headline, .dojo-raid-headline { font-family: var(--font-head); }
+/* 見出しと記録は写真の上に直接のるので、木札・和紙にのせて読みやすくする */
+.dojo-heading {
+  display: inline-block; padding: 2px 12px; border-radius: 4px;
+  background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--shu);
+}
+.dojo-history {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 4px 12px; box-shadow: var(--shadow);
+}
+.dojo-history li:last-child { border-bottom: none; }
+
+/* 審査・道場破り・稽古の画面は、朱色の線を付けた和紙 */
+.dojo-arena-card { border-top: 6px solid var(--shu); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); }
