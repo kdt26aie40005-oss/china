@@ -105,7 +105,7 @@ body::before {
   position: fixed; inset: 0; z-index: -1;
   background:
     linear-gradient(var(--photo-veil), var(--photo-veil)),
-    url("picture/haikei1.png") center bottom / cover no-repeat;
+    url("picture/haikei1.jpg") center bottom / cover no-repeat;
 }
 
 body {
