@@ -8,7 +8,8 @@
 </head>
 <body>
   <header class="header">
-    <h1>すぐ話せる中国語</h1>
+    <h1 class="visually-hidden">すぐ話せる中国語</h1>
+    <button id="belt-display" class="belt-display" type="button"></button>
     <p class="subtitle">聞く → まねする → 話す。よく使うフレーズから覚えよう</p>
     <nav class="tabs">
       <button class="tab active" data-view="phrases">フレーズ</button>
@@ -16,6 +17,7 @@
       <button class="tab" data-view="tones">声調</button>
       <button class="tab" data-view="talk">会話練習</button>
       <button class="tab" data-view="camera">写真で単語</button>
+      <button class="tab" data-view="dojo">昇級審査</button>
     </nav>
   </header>
 
@@ -110,13 +112,39 @@
       </div>
       <div id="detect-list" class="phrase-list"></div>
     </section>
+
+    <!-- 昇級審査（空手の帯） -->
+    <section id="view-dojo" class="view" hidden>
+      <div id="dojo-status" class="dojo-status"></div>
+      <div id="dojo-exam" class="quiz-card dojo-card"></div>
+      <div id="dojo-keiko" class="quiz-card dojo-card"></div>
+      <h2 class="dojo-heading">級と段</h2>
+      <ol id="dojo-ladder" class="dojo-ladder"></ol>
+      <h2 class="dojo-heading">これまでの記録</h2>
+      <ul id="dojo-history" class="dojo-history"></ul>
+      <div id="dojo-debug" class="quiz-card dojo-card" hidden></div>
+    </section>
   </main>
+
+  <!-- 審査・道場破り・稽古の画面 -->
+  <div id="dojo-arena" class="dojo-arena" hidden>
+    <div class="dojo-arena-card" role="dialog" aria-modal="true" aria-labelledby="dojo-arena-title">
+      <div class="dojo-arena-head">
+        <p id="dojo-arena-title" class="dojo-arena-title"></p>
+        <button id="dojo-quit" class="btn" type="button">棄権する</button>
+      </div>
+      <div id="dojo-arena-body"></div>
+    </div>
+  </div>
 
   <script src="data/phrases.js"></script>
   <script src="data/scenarios.js"></script>
   <script src="data/objects.js"></script>
+  <script src="data/ranks.js"></script>
   <script src="app.js"></script>
   <script src="talk.js"></script>
   <script src="camera.js"></script>
+  <script src="confetti.js"></script>
+  <script src="dojo.js"></script>
 </body>
 </html>
