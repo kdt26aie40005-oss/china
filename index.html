@@ -10,7 +10,7 @@
   <header class="header">
     <h1 class="site-sign"><span>すぐ話せる中国語</span></h1>
     <img class="header-chara" src="picture/chara1.webp" alt="" width="367" height="359">
-    <p class="header-chara-bubble"><span lang="zh-CN">你好！一起练习吧！</span><small>こんにちは！いっしょに練習しよう！</small></p>
+    <p class="header-chara-bubble" aria-hidden="true"><span id="chara-face"></span></p>
     <button id="belt-display" class="belt-display" type="button"></button>
     <p class="subtitle">聞く → まねする → 話す。よく使うフレーズから覚えよう</p>
     <nav class="tabs">
@@ -169,6 +169,7 @@
   <script src="data/scenarios.js"></script>
   <script src="data/objects.js"></script>
   <script src="data/ranks.js"></script>
+  <script src="data/kaomoji.js"></script>
   <script src="app.js"></script>
   <script src="talk.js"></script>
   <script src="camera.js"></script>
@@ -176,5 +177,6 @@
   <script src="confetti.js"></script>
   <script src="dojo.js"></script>
   <script src="bgm.js"></script>
+  <script src="chara.js"></script>
 </body>
 </html>

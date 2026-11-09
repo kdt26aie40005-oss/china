@@ -360,6 +360,7 @@ function answer(candidates) {
   const passed = result.score >= PASS_SCORE;
   addUserLine(result.heard, result, passed);
 
+  charaReact(passed ? "joy" : "sad");
   if (passed) {
     if (talk.tries === 0) talk.firstTryCount++;
     nextStep(result.answer);

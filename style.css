@@ -542,14 +542,26 @@ body.dojo-locked { overflow: hidden; }
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5)); /* 背景は透明なので、キャラの形に影を付ける */
 }
 .header .header-chara-bubble {
-  position: absolute; top: 28px; right: 16px; width: 170px; margin: 0;
-  padding: 10px 12px; border-radius: 12px;
+  position: absolute; top: 36px; right: 16px; width: 170px; margin: 0;
+  padding: 12px 8px; border-radius: 12px;
   background: var(--plate); color: var(--plate-text);
-  font-family: var(--font-head); line-height: 1.4; text-align: left;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  text-align: center; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
-.header .header-chara-bubble span { display: block; font-size: 1rem; font-weight: bold; white-space: nowrap; font-family: var(--font-zh); }
-.header .header-chara-bubble small { display: block; margin-top: 2px; font-size: 0.8rem; }
+/* 顔文字（chara.js が中身を入れかえる）。明朝体だと記号がくずれるので、ふつうの字体にする */
+.header .header-chara-bubble span {
+  display: block; font-size: 1.3rem; line-height: 1.4; white-space: nowrap;
+  font-family: "Segoe UI", "Yu Gothic UI", "Meiryo", sans-serif;
+}
+/* 顔文字が変わったときに、吹き出しを少し跳ねさせる */
+.header .header-chara-bubble.chara-pop { animation: chara-pop 0.4s ease-out; }
+@keyframes chara-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .header .header-chara-bubble.chara-pop { animation: none; }
+}
 /* 吹き出しのしっぽ（左のキャラのほうに向ける） */
 .header .header-chara-bubble::before {
   content: ""; position: absolute; left: -10px; top: 20px;
