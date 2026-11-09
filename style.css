@@ -532,3 +532,33 @@ body.dojo-locked { overflow: hidden; }
 @media (max-width: 860px) {
   .header .site-sign { position: relative; top: auto; left: auto; width: 240px; margin: 0 auto 4px; font-size: 1.15rem; }
 }
+
+/* ヘッダーのキャラクター（右上に置き、その右に吹き出しを出す） */
+.header .header-chara {
+  position: absolute; top: 4px; right: 200px;
+  width: auto; height: 160px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5)); /* 背景は透明なので、キャラの形に影を付ける */
+}
+.header .header-chara-bubble {
+  position: absolute; top: 28px; right: 16px; width: 170px; margin: 0;
+  padding: 10px 12px; border-radius: 12px;
+  background: var(--plate); color: var(--plate-text);
+  font-family: var(--font-head); line-height: 1.4; text-align: left;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+.header .header-chara-bubble span { display: block; font-size: 1rem; font-weight: bold; white-space: nowrap; font-family: var(--font-zh); }
+.header .header-chara-bubble small { display: block; margin-top: 2px; font-size: 0.8rem; }
+/* 吹き出しのしっぽ（左のキャラのほうに向ける） */
+.header .header-chara-bubble::before {
+  content: ""; position: absolute; left: -10px; top: 20px;
+  border-style: solid; border-width: 8px 10px 8px 0; border-color: transparent var(--plate) transparent transparent;
+}
+/* 少しせまい画面では、吹き出しを消してキャラを右上の角に戻す（タブや説明文に重ならないように） */
+@media (max-width: 1199px) {
+  .header .header-chara { top: 12px; right: 24px; height: 120px; }
+  .header .header-chara-bubble { display: none; }
+}
+/* 画面がせまいときは、小さくして右上の角に置く */
+@media (max-width: 860px) {
+  .header .header-chara { top: 8px; right: 8px; height: 64px; }
+}
