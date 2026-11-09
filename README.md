@@ -25,6 +25,15 @@
 - 曲は `audio/bgm.mp3`。同じ名前で置きかえると曲を変えられる。ファイルがないときは、ボタンは出ない
 - 音量は `bgm.js` の `BGM_VOLUME`（ふだん）と `BGM_DUCK_VOLUME`（読み上げ・🎤の間）で変えられる
 
+### キャラクター
+
+ヘッダーの右上の豆腐の忍者が、吹き出しの顔文字で反応します（画面の幅が1200px以上のとき）。
+
+- ふだんは、5回操作（クリック）するたびに顔文字がランダムで変わる
+- クイズ・🎤の発音チェック・会話練習・昇級審査（道場破り・稽古も）で、正解すると喜び、まちがえると悲しみの顔文字を3秒出す
+- 顔文字は `data/kaomoji.js` に書き足せる。変わるまでの回数と、喜び・悲しみを出す時間は `chara.js` の `CHARA_CHANGE_EVERY` と `CHARA_REACT_MS` で変えられる
+- 正解・不正解のときに `charaReact("joy")`・`charaReact("sad")` を呼べば、ほかの画面からも反応させられる
+
 ### 自分で単語を追加（翻訳）
 
 フレーズの「📝 自分で追加」を選ぶと、日本語を中国語に翻訳して、自分の単語として追加できます。
@@ -106,11 +115,14 @@ py -m http.server 8000
 ├── translate.js     … 翻訳して単語を追加（フレーズの「自分で追加」）
 ├── confetti.js      … 紙吹雪の演出（どこからでも launchConfetti() で呼べる）
 ├── dojo.js          … 昇級審査（帯・審査・道場破り・稽古）
+├── bgm.js           … BGM
+├── chara.js         … ヘッダーのキャラクターの顔文字
 ├── data/
 │   ├── phrases.js   … フレーズと声調のデータ
 │   ├── scenarios.js … 会話練習のシナリオ
 │   ├── objects.js   … 写真で単語の花・動物リスト
-│   └── ranks.js     … 昇級審査の級・段と審査の内容
+│   ├── ranks.js     … 昇級審査の級・段と審査の内容
+│   └── kaomoji.js   … キャラクターの顔文字（ふだん・喜び・悲しみ）
 ├── docs/            … 仕様メモ・設計・議事録など
 ├── src/             … （今は未使用）
 └── .github/         … Pull Request テンプレート
@@ -121,11 +133,12 @@ py -m http.server 8000
 `index.html` の `<script>` は、次の順番でないと動きません。ファイルを追加するときは順番に気をつけてください。
 
 ```
-data/phrases.js → data/scenarios.js → data/objects.js → data/ranks.js → app.js → talk.js → camera.js → translate.js → confetti.js → dojo.js
+data/phrases.js → data/scenarios.js → data/objects.js → data/ranks.js → data/kaomoji.js → app.js → talk.js → camera.js → translate.js → confetti.js → dojo.js → bgm.js → chara.js
 ```
 
 - `data/` のファイルは、それを使う JS より前に読み込む（`app.js` は `data/objects.js` も使う）
 - `talk.js`・`camera.js`・`translate.js`・`dojo.js` は、`app.js` の関数（`speak()`、`similarity()`、`state` など）を使うので、`app.js` より後に読み込む
+- `chara.js` の `charaReact()` は、クリックなどの操作のあとに呼ばれるだけなので、ほかのファイルより後に読み込んでよい
 - どのファイルも同じグローバルの名前空間を使っています。新しく関数や変数を作るときは、ほかのファイルと名前がかぶらないようにしてください
 
 ## データの増やし方

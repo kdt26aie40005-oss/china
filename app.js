@@ -191,9 +191,11 @@ function listen(target, button, feedbackEl) {
       state.learned.add(target.zh);
       saveLearned();
       renderPhrases();
+      charaReact("joy");
     } else {
       feedbackEl.className = "feedback ng";
       feedbackEl.textContent = `おしい！（${best.score}点）認識結果: ${best.text}　もう一度お手本を聞いてみよう`;
+      charaReact("sad");
     }
   };
   rec.onerror = (e) => {
@@ -342,12 +344,14 @@ function answerQuiz(choice, btn) {
     q.correct++;
     btn.classList.add("correct");
     result.textContent = "正解！声に出して言ってみよう";
+    charaReact("joy");
   } else {
     btn.classList.add("wrong");
     [...document.querySelectorAll(".quiz-option")]
       .find((b) => b.dataset.zh === q.answer.zh)
       .classList.add("correct");
     result.textContent = `残念… 正解は「${q.answer.zh}」`;
+    charaReact("sad");
   }
   speak(q.answer.zh);
   renderQuizScore();

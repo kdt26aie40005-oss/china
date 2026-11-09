@@ -446,6 +446,7 @@ function dojoAnswer(correct, message) {
   }
 
   const result = document.getElementById("dojo-result");
+  charaReact(correct ? "joy" : "sad");
   if (correct) {
     run.correct++;
     result.textContent = "正解！";
